@@ -44,7 +44,7 @@ body {
 /* Animated mesh gradient background */
 .mesh-gradient {
   position: fixed;
-  inset: 0;
+  inset: -50px;
   z-index: -1;
   background:
     radial-gradient(ellipse 80% 50% at 20% 40%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
@@ -55,16 +55,16 @@ body {
 }
 
 @keyframes meshMove {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-2%, 2%) scale(1.02); }
-  50% { transform: translate(2%, -1%) scale(0.98); }
-  75% { transform: translate(-1%, -2%) scale(1.01); }
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  25% { transform: translate(-2%, 2%) scale(1.08); }
+  50% { transform: translate(2%, -1%) scale(1.03); }
+  75% { transform: translate(-1%, -2%) scale(1.06); }
 }
 
 /* Noise overlay texture */
 .noise-overlay {
   position: fixed;
-  inset: 0;
+  inset: -50px;
   z-index: -1;
   opacity: 0.03;
   pointer-events: none;
