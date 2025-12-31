@@ -62,7 +62,7 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
               <button
                 onClick={() => onStageClick(stage.id)}
                 className={`
-                  relative flex flex-col items-center min-w-[120px] p-5 rounded-2xl
+                  relative flex flex-col items-center min-w-[130px] p-5 pt-6 rounded-2xl
                   transition-all duration-300 group
                   ${isInactive ? 'glass-panel-sm opacity-50 hover:opacity-100' : ''}
                   ${isDetected ? 'glass-panel-sm' : ''}
@@ -78,14 +78,14 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
               >
                 {/* Blocked checkmark badge */}
                 {isBlocked && (
-                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 z-10">
+                  <div className="absolute -top-3 -right-3 w-7 h-7 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 z-10">
                     <span className="text-xs font-bold text-slate-900">✓</span>
                   </div>
                 )}
 
                 {/* Stage number badge */}
                 <div className={`
-                  absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
+                  absolute -top-3 -left-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-lg
                   ${isInactive ? 'bg-slate-700 text-slate-400' : ''}
                   ${isDetected ? 'text-white' : ''}
                   ${isBlocked ? 'bg-emerald-500/20 text-emerald-400' : ''}
