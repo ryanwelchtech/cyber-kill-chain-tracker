@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, Shield, ShieldCheck, Clock, MapPin, Target } from 'lucide-react';
+import { AlertTriangle, Shield, ShieldCheck, Clock, MapPin, Target, ChevronRight } from 'lucide-react';
 import { Threat } from '../types';
 import { killChainStages } from '../data/killChainStages';
 
@@ -10,34 +10,43 @@ interface ThreatListProps {
 }
 
 const ThreatList: React.FC<ThreatListProps> = ({ threats, selectedThreat, onSelectThreat }) => {
-  const getSeverityColor = (severity: string) => {
+  const getSeverityStyles = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-cyber-red bg-cyber-red/10 border-cyber-red/30';
-      case 'high': return 'text-cyber-orange bg-cyber-orange/10 border-cyber-orange/30';
-      case 'medium': return 'text-cyber-yellow bg-cyber-yellow/10 border-cyber-yellow/30';
-      case 'low': return 'text-cyber-blue bg-cyber-blue/10 border-cyber-blue/30';
-      default: return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
+      case 'critical':
+        return { bg: 'from-red-500/20 to-red-500/5', border: 'border-red-500/30', text: 'text-red-400', glow: 'shadow-red-500/20' };
+      case 'high':
+        return { bg: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/30', text: 'text-orange-400', glow: 'shadow-orange-500/20' };
+      case 'medium':
+        return { bg: 'from-amber-500/20 to-amber-500/5', border: 'border-amber-500/30', text: 'text-amber-400', glow: 'shadow-amber-500/20' };
+      case 'low':
+        return { bg: 'from-cyan-500/20 to-cyan-500/5', border: 'border-cyan-500/30', text: 'text-cyan-400', glow: 'shadow-cyan-500/20' };
+      default:
+        return { bg: 'from-slate-500/20 to-slate-500/5', border: 'border-slate-500/30', text: 'text-slate-400', glow: 'shadow-slate-500/20' };
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'active': return <AlertTriangle className="w-4 h-4 text-cyber-red" />;
-      case 'contained': return <Shield className="w-4 h-4 text-cyber-orange" />;
-      case 'remediated': return <ShieldCheck className="w-4 h-4 text-cyber-green" />;
-      default: return null;
+      case 'active':
+        return { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/20', label: 'Active' };
+      case 'contained':
+        return { icon: Shield, color: 'text-orange-400', bg: 'bg-orange-500/20', label: 'Contained' };
+      case 'remediated':
+        return { icon: ShieldCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/20', label: 'Remediated' };
+      default:
+        return { icon: AlertTriangle, color: 'text-slate-400', bg: 'bg-slate-500/20', label: status };
     }
   };
 
   const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'apt': return 'APT';
-      case 'malware': return 'Malware';
-      case 'ransomware': return 'Ransomware';
-      case 'phishing': return 'Phishing';
-      case 'insider': return 'Insider';
-      default: return type;
-    }
+    const types: { [key: string]: { label: string; color: string } } = {
+      apt: { label: 'APT', color: 'from-purple-500/20 to-purple-500/5 text-purple-400 border-purple-500/30' },
+      malware: { label: 'Malware', color: 'from-red-500/20 to-red-500/5 text-red-400 border-red-500/30' },
+      ransomware: { label: 'Ransomware', color: 'from-orange-500/20 to-orange-500/5 text-orange-400 border-orange-500/30' },
+      phishing: { label: 'Phishing', color: 'from-amber-500/20 to-amber-500/5 text-amber-400 border-amber-500/30' },
+      insider: { label: 'Insider', color: 'from-cyan-500/20 to-cyan-500/5 text-cyan-400 border-cyan-500/30' }
+    };
+    return types[type] || { label: type, color: 'from-slate-500/20 to-slate-500/5 text-slate-400 border-slate-500/30' };
   };
 
   const formatTimeAgo = (date: Date) => {
@@ -52,53 +61,84 @@ const ThreatList: React.FC<ThreatListProps> = ({ threats, selectedThreat, onSele
   };
 
   return (
-    <div className="bg-cyber-dark border border-cyan-900/30 rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-cyan-900/30">
-        <h2 className="text-lg font-semibold text-white">Active Threats</h2>
-        <p className="text-sm text-gray-400">Click to view kill chain progression</p>
+    <div className="glass-panel overflow-hidden animate-fade-in-up opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+      <div className="p-6 border-b border-slate-700/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">Active Threats</h2>
+            <p className="text-sm text-slate-500 mt-1">Click to track kill chain progression</p>
+          </div>
+          <div className="glass-panel-sm px-3 py-1.5">
+            <span className="text-xs font-medium text-slate-400">{threats.length} total</span>
+          </div>
+        </div>
       </div>
 
-      <div className="divide-y divide-cyan-900/20 max-h-[500px] overflow-y-auto">
-        {threats.map((threat) => (
-          <button
-            key={threat.id}
-            onClick={() => onSelectThreat(threat)}
-            className={`
-              w-full text-left p-4 transition-all hover:bg-cyber-blue/5
-              ${selectedThreat?.id === threat.id ? 'bg-cyber-blue/10 border-l-2 border-cyber-blue' : ''}
-            `}
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(threat.status)}
-                <span className="font-medium text-white">{threat.name}</span>
+      <div className="divide-y divide-slate-700/30 max-h-[480px] overflow-y-auto">
+        {threats.map((threat) => {
+          const severity = getSeverityStyles(threat.severity);
+          const status = getStatusInfo(threat.status);
+          const type = getTypeLabel(threat.type);
+          const StatusIcon = status.icon;
+          const isSelected = selectedThreat?.id === threat.id;
+
+          return (
+            <button
+              key={threat.id}
+              onClick={() => onSelectThreat(threat)}
+              className={`
+                w-full text-left p-5 transition-all duration-300 group relative
+                ${isSelected ? 'bg-cyan-500/10' : 'hover:bg-white/[0.02]'}
+              `}
+            >
+              {/* Selection indicator */}
+              {isSelected && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-blue-500"></div>
+              )}
+
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${status.bg}`}>
+                    <StatusIcon className={`w-4 h-4 ${status.color}`} />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-white group-hover:text-cyan-400 transition-colors">
+                      {threat.name}
+                    </span>
+                    <span className="text-xs text-slate-600 ml-2 font-mono">{threat.id}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 text-xs font-semibold rounded-lg bg-gradient-to-r ${severity.bg} ${severity.text} border ${severity.border}`}>
+                    {threat.severity.toUpperCase()}
+                  </span>
+                  <ChevronRight className={`w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-all duration-300 ${isSelected ? 'translate-x-1' : ''}`} />
+                </div>
               </div>
-              <span className={`px-2 py-0.5 text-xs rounded border ${getSeverityColor(threat.severity)}`}>
-                {threat.severity.toUpperCase()}
-              </span>
-            </div>
 
-            <div className="flex items-center gap-4 text-xs text-gray-400 mb-2">
-              <span className="px-2 py-0.5 bg-gray-800 rounded">{getTypeLabel(threat.type)}</span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {formatTimeAgo(threat.lastActivity)}
-              </span>
-            </div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className={`px-2.5 py-1 text-xs font-medium rounded-lg bg-gradient-to-r ${type.color} border`}>
+                  {type.label}
+                </span>
+                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <Clock className="w-3 h-3" />
+                  {formatTimeAgo(threat.lastActivity)}
+                </span>
+              </div>
 
-            <div className="flex items-center gap-4 text-xs text-gray-500">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {threat.source}
-              </span>
-              <span className="flex items-center gap-1">
-                <Target className="w-3 h-3" />
-                {threat.target}
-              </span>
-            </div>
+              <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3 text-slate-600" />
+                  <span className="truncate max-w-[120px]">{threat.source}</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Target className="w-3 h-3 text-slate-600" />
+                  <span className="truncate max-w-[120px]">{threat.target}</span>
+                </span>
+              </div>
 
-            <div className="mt-3">
-              <div className="flex items-center gap-1">
+              {/* Kill chain progress bar */}
+              <div className="flex items-center gap-0.5">
                 {killChainStages.map((stage, index) => {
                   const stageProgress = threat.stages.find(s => s.stageId === stage.id);
                   const isActive = stageProgress?.detected;
@@ -107,23 +147,22 @@ const ThreatList: React.FC<ThreatListProps> = ({ threats, selectedThreat, onSele
                   return (
                     <div
                       key={stage.id}
-                      className={`
-                        h-1.5 flex-1 rounded-full transition-all
-                        ${isBlocked ? 'bg-cyber-green' : isActive ? '' : 'bg-gray-700'}
-                      `}
-                      style={isActive && !isBlocked ? { backgroundColor: stage.color } : {}}
+                      className="h-1.5 flex-1 rounded-full transition-all duration-300 first:rounded-l-full last:rounded-r-full"
+                      style={{
+                        backgroundColor: isBlocked
+                          ? 'rgb(16, 185, 129)'
+                          : isActive
+                          ? stage.color
+                          : 'rgb(51, 65, 85)'
+                      }}
                       title={`${stage.name}${isBlocked ? ' (Blocked)' : ''}`}
                     />
                   );
                 })}
               </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-gray-600">Reconnaissance</span>
-                <span className="text-[10px] text-gray-600">Actions</span>
-              </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

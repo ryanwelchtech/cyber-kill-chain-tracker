@@ -194,45 +194,52 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-cyber-darker grid-bg">
-      <div className="scanline"></div>
+    <div className="min-h-screen bg-primary relative overflow-hidden">
+      {/* Animated mesh gradient background */}
+      <div className="mesh-gradient"></div>
 
-      <Header alertCount={unacknowledgedCount} />
+      {/* Noise texture overlay */}
+      <div className="noise-overlay"></div>
 
-      <main className="p-6">
-        <StatsPanel stats={stats} />
+      {/* Content */}
+      <div className="relative z-10">
+        <Header alertCount={unacknowledgedCount} />
 
-        <SimulationControls
-          isRunning={isSimulationRunning}
-          onToggle={() => setIsSimulationRunning(!isSimulationRunning)}
-          onReset={handleReset}
-          onTriggerAttack={generateNewThreat}
-        />
+        <main className="pb-8">
+          <StatsPanel stats={stats} />
 
-        <KillChainVisualization
-          stages={killChainStages}
-          selectedThreat={selectedThreat}
-          onStageClick={handleStageClick}
-        />
+          <SimulationControls
+            isRunning={isSimulationRunning}
+            onToggle={() => setIsSimulationRunning(!isSimulationRunning)}
+            onReset={handleReset}
+            onTriggerAttack={generateNewThreat}
+          />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ThreatList
-            threats={threats}
+          <KillChainVisualization
+            stages={killChainStages}
             selectedThreat={selectedThreat}
-            onSelectThreat={setSelectedThreat}
+            onStageClick={handleStageClick}
           />
-          <AlertsPanel
-            alerts={alerts}
-            onAcknowledge={handleAcknowledgeAlert}
-          />
-        </div>
-      </main>
 
-      <StageDetails
-        stage={selectedStage}
-        threat={selectedThreat}
-        onClose={() => setSelectedStage(null)}
-      />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-6 mt-6">
+            <ThreatList
+              threats={threats}
+              selectedThreat={selectedThreat}
+              onSelectThreat={setSelectedThreat}
+            />
+            <AlertsPanel
+              alerts={alerts}
+              onAcknowledge={handleAcknowledgeAlert}
+            />
+          </div>
+        </main>
+
+        <StageDetails
+          stage={selectedStage}
+          threat={selectedThreat}
+          onClose={() => setSelectedStage(null)}
+        />
+      </div>
     </div>
   );
 }

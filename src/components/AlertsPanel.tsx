@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, AlertTriangle, Info, CheckCircle, Clock } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Info, CheckCircle2, Clock, Check } from 'lucide-react';
 import { Alert } from '../types';
 import { killChainStages } from '../data/killChainStages';
 
@@ -14,30 +14,34 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, onAcknowledge }) => {
       case 'critical':
         return {
           icon: AlertCircle,
-          bg: 'bg-cyber-red/10',
-          border: 'border-cyber-red/30',
-          text: 'text-cyber-red'
+          gradient: 'from-red-500/20 to-red-500/5',
+          border: 'border-red-500/30',
+          text: 'text-red-400',
+          glow: 'shadow-red-500/10'
         };
       case 'high':
         return {
           icon: AlertTriangle,
-          bg: 'bg-cyber-orange/10',
-          border: 'border-cyber-orange/30',
-          text: 'text-cyber-orange'
+          gradient: 'from-orange-500/20 to-orange-500/5',
+          border: 'border-orange-500/30',
+          text: 'text-orange-400',
+          glow: 'shadow-orange-500/10'
         };
       case 'medium':
         return {
           icon: Info,
-          bg: 'bg-cyber-yellow/10',
-          border: 'border-cyber-yellow/30',
-          text: 'text-cyber-yellow'
+          gradient: 'from-amber-500/20 to-amber-500/5',
+          border: 'border-amber-500/30',
+          text: 'text-amber-400',
+          glow: 'shadow-amber-500/10'
         };
       default:
         return {
           icon: Info,
-          bg: 'bg-cyber-blue/10',
-          border: 'border-cyber-blue/30',
-          text: 'text-cyber-blue'
+          gradient: 'from-cyan-500/20 to-cyan-500/5',
+          border: 'border-cyan-500/30',
+          text: 'text-cyan-400',
+          glow: 'shadow-cyan-500/10'
         };
     }
   };
@@ -61,15 +65,25 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, onAcknowledge }) => {
   const acknowledgedAlerts = alerts.filter(a => a.acknowledged);
 
   return (
-    <div className="bg-cyber-dark border border-cyan-900/30 rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-cyan-900/30">
-        <h2 className="text-lg font-semibold text-white">Recent Alerts</h2>
-        <p className="text-sm text-gray-400">
-          {unacknowledgedAlerts.length} unacknowledged
-        </p>
+    <div className="glass-panel overflow-hidden animate-fade-in-up opacity-0" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+      <div className="p-6 border-b border-slate-700/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">Recent Alerts</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              {unacknowledgedAlerts.length} requiring attention
+            </p>
+          </div>
+          {unacknowledgedAlerts.length > 0 && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-red-500/30 rounded-full blur-md animate-pulse"></div>
+              <div className="relative w-3 h-3 bg-red-500 rounded-full"></div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="divide-y divide-cyan-900/20 max-h-[400px] overflow-y-auto">
+      <div className="divide-y divide-slate-700/30 max-h-[380px] overflow-y-auto">
         {unacknowledgedAlerts.map((alert) => {
           const styles = getSeverityStyles(alert.severity);
           const IconComponent = styles.icon;
@@ -77,29 +91,33 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, onAcknowledge }) => {
           return (
             <div
               key={alert.id}
-              className={`p-4 ${styles.bg} border-l-2 ${styles.border}`}
+              className={`p-5 bg-gradient-to-r ${styles.gradient} border-l-2 ${styles.border} transition-all duration-300 hover:bg-white/[0.02]`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <IconComponent className={`w-5 h-5 ${styles.text} flex-shrink-0 mt-0.5`} />
-                  <div>
-                    <p className="text-sm text-white">{alert.message}</p>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                      <span className="px-2 py-0.5 bg-gray-800 rounded">
-                        {getStageName(alert.stageId)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatTimeAgo(alert.timestamp)}
-                      </span>
-                    </div>
+              <div className="flex items-start gap-4">
+                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${styles.gradient} border ${styles.border} shadow-lg ${styles.glow}`}>
+                  <IconComponent className={`w-4 h-4 ${styles.text}`} />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-200 leading-relaxed">{alert.message}</p>
+
+                  <div className="flex items-center gap-3 mt-3">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800/50 text-slate-400 border border-slate-700/50">
+                      {getStageName(alert.stageId)}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <Clock className="w-3 h-3" />
+                      {formatTimeAgo(alert.timestamp)}
+                    </span>
                   </div>
                 </div>
+
                 <button
                   onClick={() => onAcknowledge(alert.id)}
-                  className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 glass-panel-sm text-xs font-medium text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all duration-300 group"
                 >
-                  Acknowledge
+                  <Check className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <span>Acknowledge</span>
                 </button>
               </div>
             </div>
@@ -108,30 +126,36 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, onAcknowledge }) => {
 
         {acknowledgedAlerts.length > 0 && (
           <>
-            <div className="p-2 bg-gray-900/50 text-xs text-gray-500 text-center">
+            <div className="p-3 bg-slate-900/30 text-xs text-slate-600 text-center uppercase tracking-wider font-medium">
               Acknowledged
             </div>
-            {acknowledgedAlerts.map((alert) => {
-              const styles = getSeverityStyles(alert.severity);
-
-              return (
-                <div key={alert.id} className="p-4 opacity-50">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-400">{alert.message}</p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                        <span className="px-2 py-0.5 bg-gray-800 rounded">
-                          {getStageName(alert.stageId)}
-                        </span>
-                        <span>{formatTimeAgo(alert.timestamp)}</span>
-                      </div>
+            {acknowledgedAlerts.slice(0, 3).map((alert) => (
+              <div key={alert.id} className="p-4 opacity-40">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-xl bg-slate-800/30">
+                    <CheckCircle2 className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-500 line-clamp-1">{alert.message}</p>
+                    <div className="flex items-center gap-2 mt-2 text-xs text-slate-600">
+                      <span>{getStageName(alert.stageId)}</span>
+                      <span>•</span>
+                      <span>{formatTimeAgo(alert.timestamp)}</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </>
+        )}
+
+        {alerts.length === 0 && (
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-800/50 flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-slate-600" />
+            </div>
+            <p className="text-slate-500">No active alerts</p>
+          </div>
         )}
       </div>
     </div>

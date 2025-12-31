@@ -12,64 +12,85 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
       label: 'Active Threats',
       value: stats.activeThreats,
       icon: AlertTriangle,
-      color: 'text-cyber-red',
-      bgColor: 'bg-cyber-red/10',
-      borderColor: 'border-cyber-red/30'
+      gradient: 'from-red-500 to-orange-500',
+      glowClass: 'glow-border-red',
+      textColor: 'text-red-400',
+      bgColor: 'from-red-500/10 to-orange-500/10'
     },
     {
       label: 'Contained',
       value: stats.containedThreats,
       icon: ShieldOff,
-      color: 'text-cyber-orange',
-      bgColor: 'bg-cyber-orange/10',
-      borderColor: 'border-cyber-orange/30'
+      gradient: 'from-orange-500 to-amber-500',
+      glowClass: 'glow-border-orange',
+      textColor: 'text-orange-400',
+      bgColor: 'from-orange-500/10 to-amber-500/10'
     },
     {
       label: 'Remediated',
       value: stats.remediatedThreats,
       icon: ShieldCheck,
-      color: 'text-cyber-green',
-      bgColor: 'bg-cyber-green/10',
-      borderColor: 'border-cyber-green/30'
+      gradient: 'from-emerald-500 to-cyan-500',
+      glowClass: 'glow-border-green',
+      textColor: 'text-emerald-400',
+      bgColor: 'from-emerald-500/10 to-cyan-500/10'
     },
     {
       label: 'Alerts Today',
       value: stats.alertsToday,
       icon: Activity,
-      color: 'text-cyber-blue',
-      bgColor: 'bg-cyber-blue/10',
-      borderColor: 'border-cyber-blue/30'
+      gradient: 'from-cyan-500 to-blue-500',
+      glowClass: 'glow-border-cyan',
+      textColor: 'text-cyan-400',
+      bgColor: 'from-cyan-500/10 to-blue-500/10'
     },
     {
-      label: 'Critical Alerts',
+      label: 'Critical',
       value: stats.criticalAlerts,
       icon: AlertCircle,
-      color: 'text-cyber-red',
-      bgColor: 'bg-cyber-red/10',
-      borderColor: 'border-cyber-red/30'
+      gradient: 'from-red-500 to-pink-500',
+      glowClass: 'glow-border-red',
+      textColor: 'text-red-400',
+      bgColor: 'from-red-500/10 to-pink-500/10'
     },
     {
-      label: 'Avg Detection (hrs)',
-      value: stats.averageDetectionTime,
+      label: 'Avg Detection',
+      value: `${stats.averageDetectionTime}h`,
       icon: Clock,
-      color: 'text-cyber-purple',
-      bgColor: 'bg-cyber-purple/10',
-      borderColor: 'border-cyber-purple/30'
+      gradient: 'from-purple-500 to-violet-500',
+      glowClass: 'glow-border-purple',
+      textColor: 'text-purple-400',
+      bgColor: 'from-purple-500/10 to-violet-500/10'
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 px-6 mt-6">
       {statCards.map((stat, index) => (
         <div
           key={index}
-          className={`${stat.bgColor} border ${stat.borderColor} rounded-lg p-4 transition-all hover:scale-105`}
+          className={`
+            glass-panel-sm p-5 hover-lift cursor-default
+            animate-fade-in-up opacity-0
+          `}
+          style={{ animationDelay: `${(index + 1) * 100}ms`, animationFillMode: 'forwards' }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <stat.icon className={`w-5 h-5 ${stat.color}`} />
+          <div className="flex items-center justify-between mb-3">
+            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.bgColor}`}>
+              <stat.icon className={`w-4 h-4 ${stat.textColor}`} />
+            </div>
           </div>
-          <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-          <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
+
+          <div className={`text-3xl font-bold ${stat.textColor} tracking-tight`}>
+            {stat.value}
+          </div>
+
+          <div className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wider">
+            {stat.label}
+          </div>
+
+          {/* Subtle gradient line at bottom */}
+          <div className={`h-0.5 w-full mt-4 rounded-full bg-gradient-to-r ${stat.gradient} opacity-30`}></div>
         </div>
       ))}
     </div>

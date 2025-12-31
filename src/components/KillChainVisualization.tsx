@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Wrench, Send, Zap, Download, Radio, Target, ChevronRight } from 'lucide-react';
+import { Search, Wrench, Send, Zap, Download, Radio, Target, ArrowRight } from 'lucide-react';
 import { KillChainStage, Threat } from '../types';
 
 interface KillChainVisualizationProps {
@@ -33,87 +33,132 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
   };
 
   return (
-    <div className="bg-cyber-dark border border-cyan-900/30 rounded-lg p-6 mb-6">
-      <h2 className="text-lg font-semibold text-white mb-4">Kill Chain Progression</h2>
+    <div className="glass-panel mx-6 mt-6 p-8 animate-fade-in-up opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Kill Chain Progression</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            {selectedThreat ? `Tracking: ${selectedThreat.name}` : 'Select a threat to visualize attack progression'}
+          </p>
+        </div>
+        {selectedThreat && (
+          <div className="glass-panel-sm px-4 py-2">
+            <span className="text-xs text-slate-500 uppercase tracking-wider">Current Stage</span>
+            <span className="ml-2 text-cyan-400 font-semibold">{selectedThreat.currentStage + 1} / 7</span>
+          </div>
+        )}
+      </div>
 
-      <div className="flex items-center justify-between overflow-x-auto pb-4">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto pb-4">
         {stages.map((stage, index) => {
           const IconComponent = iconMap[stage.icon] || Search;
           const status = getStageStatus(stage.id);
-
-          const statusStyles = {
-            inactive: 'bg-gray-800/50 border-gray-700 text-gray-500',
-            detected: `bg-opacity-20 border-opacity-50`,
-            blocked: 'bg-green-900/30 border-green-500/50 text-green-400'
-          };
-
           const isDetected = status === 'detected';
           const isBlocked = status === 'blocked';
+          const isInactive = status === 'inactive';
 
           return (
             <React.Fragment key={stage.id}>
               <button
                 onClick={() => onStageClick(stage.id)}
                 className={`
-                  relative flex flex-col items-center min-w-[100px] p-4 rounded-lg border-2 transition-all
-                  hover:scale-105 cursor-pointer
-                  ${status === 'inactive' ? statusStyles.inactive : ''}
-                  ${isDetected ? `border-2` : ''}
-                  ${isBlocked ? statusStyles.blocked : ''}
+                  relative flex flex-col items-center min-w-[120px] p-5 rounded-2xl
+                  transition-all duration-300 group
+                  ${isInactive ? 'glass-panel-sm opacity-50 hover:opacity-100' : ''}
+                  ${isDetected ? 'glass-panel-sm' : ''}
+                  ${isBlocked ? 'glass-panel-sm' : ''}
                 `}
                 style={isDetected ? {
-                  backgroundColor: `${stage.color}20`,
-                  borderColor: `${stage.color}80`,
-                  color: stage.color
+                  boxShadow: `0 0 0 1px ${stage.color}40, 0 0 30px -5px ${stage.color}60`,
+                  background: `linear-gradient(135deg, ${stage.color}15 0%, ${stage.color}05 100%)`
+                } : isBlocked ? {
+                  boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.4), 0 0 30px -5px rgba(16, 185, 129, 0.6)',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)'
                 } : {}}
               >
+                {/* Blocked checkmark badge */}
                 {isBlocked && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-cyber-green rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-black">✓</span>
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 z-10">
+                    <span className="text-xs font-bold text-slate-900">✓</span>
                   </div>
                 )}
 
+                {/* Stage number badge */}
+                <div className={`
+                  absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
+                  ${isInactive ? 'bg-slate-700 text-slate-400' : ''}
+                  ${isDetected ? 'text-white' : ''}
+                  ${isBlocked ? 'bg-emerald-500/20 text-emerald-400' : ''}
+                `}
+                  style={isDetected ? { backgroundColor: `${stage.color}30`, color: stage.color } : {}}
+                >
+                  {index + 1}
+                </div>
+
+                {/* Icon container */}
                 <div
                   className={`
-                    w-12 h-12 rounded-full flex items-center justify-center mb-2
-                    ${status === 'inactive' ? 'bg-gray-700' : ''}
-                    ${isBlocked ? 'bg-green-500/20' : ''}
+                    w-14 h-14 rounded-2xl flex items-center justify-center mb-4
+                    transition-all duration-300
+                    ${isInactive ? 'bg-slate-800/50' : ''}
+                    ${isBlocked ? 'bg-emerald-500/20' : ''}
                   `}
-                  style={isDetected ? { backgroundColor: `${stage.color}30` } : {}}
+                  style={isDetected ? { backgroundColor: `${stage.color}25` } : {}}
                 >
                   <IconComponent
-                    className={`w-6 h-6 ${status === 'inactive' ? 'text-gray-500' : ''}`}
+                    className={`w-7 h-7 transition-all duration-300 ${isInactive ? 'text-slate-500' : ''} ${isBlocked ? 'text-emerald-400' : ''}`}
                     style={isDetected ? { color: stage.color } : {}}
                   />
                 </div>
 
-                <span className="text-xs font-medium text-center whitespace-nowrap">
+                {/* Stage name */}
+                <span className={`
+                  text-sm font-semibold text-center whitespace-nowrap
+                  ${isInactive ? 'text-slate-500' : 'text-white'}
+                `}>
                   {stage.name}
                 </span>
 
-                <span className="text-[10px] mt-1 opacity-60">
-                  Stage {index + 1}
-                </span>
+                {/* Hover effect */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  style={{ background: `radial-gradient(circle at center, ${stage.color}10 0%, transparent 70%)` }}
+                ></div>
               </button>
 
+              {/* Connector arrow */}
               {index < stages.length - 1 && (
-                <ChevronRight
-                  className={`w-6 h-6 flex-shrink-0 mx-2 ${
-                    selectedThreat && selectedThreat.currentStage > index
-                      ? 'text-cyber-blue'
-                      : 'text-gray-700'
-                  }`}
-                />
+                <div className="flex items-center px-1">
+                  <div className={`
+                    w-8 h-0.5 rounded-full transition-all duration-300
+                    ${selectedThreat && selectedThreat.currentStage > index
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500'
+                      : 'bg-slate-700/50'
+                    }
+                  `}></div>
+                  <ArrowRight className={`
+                    w-4 h-4 -ml-1 transition-colors duration-300
+                    ${selectedThreat && selectedThreat.currentStage > index
+                      ? 'text-blue-500'
+                      : 'text-slate-700'
+                    }
+                  `} />
+                </div>
               )}
             </React.Fragment>
           );
         })}
       </div>
 
-      {!selectedThreat && (
-        <p className="text-center text-gray-500 mt-4">
-          Select a threat to visualize its kill chain progression
-        </p>
+      {/* Progress bar */}
+      {selectedThreat && (
+        <div className="mt-6">
+          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full transition-all duration-500"
+              style={{ width: `${((selectedThreat.currentStage + 1) / stages.length) * 100}%` }}
+            ></div>
+          </div>
+        </div>
       )}
     </div>
   );
