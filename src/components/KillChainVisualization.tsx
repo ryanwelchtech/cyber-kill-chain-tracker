@@ -49,7 +49,7 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 overflow-x-auto pb-4">
+      <div className="flex items-center justify-between gap-3 overflow-x-auto pb-4 pt-5 px-2">
         {stages.map((stage, index) => {
           const IconComponent = iconMap[stage.icon] || Search;
           const status = getStageStatus(stage.id);
@@ -62,8 +62,8 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
               <button
                 onClick={() => onStageClick(stage.id)}
                 className={`
-                  relative flex flex-col items-center min-w-[130px] p-5 pt-6 rounded-2xl
-                  transition-all duration-300 group
+                  relative flex flex-col items-center min-w-[130px] p-5 pt-7 rounded-2xl
+                  transition-all duration-300 group overflow-visible
                   ${isInactive ? 'glass-panel-sm opacity-50 hover:opacity-100' : ''}
                   ${isDetected ? 'glass-panel-sm' : ''}
                   ${isBlocked ? 'glass-panel-sm' : ''}
@@ -85,12 +85,12 @@ const KillChainVisualization: React.FC<KillChainVisualizationProps> = ({
 
                 {/* Stage number badge */}
                 <div className={`
-                  absolute -top-3 -left-3 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-lg
+                  absolute -top-4 -left-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg z-20
                   ${isInactive ? 'bg-slate-700 text-slate-400' : ''}
                   ${isDetected ? 'text-white' : ''}
                   ${isBlocked ? 'bg-emerald-500/20 text-emerald-400' : ''}
                 `}
-                  style={isDetected ? { backgroundColor: `${stage.color}30`, color: stage.color } : {}}
+                  style={isDetected ? { backgroundColor: `${stage.color}40`, color: stage.color } : {}}
                 >
                   {index + 1}
                 </div>

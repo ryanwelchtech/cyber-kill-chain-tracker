@@ -1,18 +1,26 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, Zap, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Zap, Sparkles, Globe, Settings, RefreshCw } from 'lucide-react';
 
 interface SimulationControlsProps {
   isRunning: boolean;
   onToggle: () => void;
   onReset: () => void;
   onTriggerAttack: () => void;
+  onFetchLiveThreats?: () => void;
+  onOpenSettings?: () => void;
+  isLoadingLive?: boolean;
+  hasApiKey?: boolean;
 }
 
 const SimulationControls: React.FC<SimulationControlsProps> = ({
   isRunning,
   onToggle,
   onReset,
-  onTriggerAttack
+  onTriggerAttack,
+  onFetchLiveThreats,
+  onOpenSettings,
+  isLoadingLive = false,
+  hasApiKey = false
 }) => {
   return (
     <div className="glass-panel-sm mx-6 mt-6 p-5 animate-fade-in-up opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
@@ -30,6 +38,39 @@ const SimulationControls: React.FC<SimulationControlsProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Live Threats Button (OTX) */}
+          {onFetchLiveThreats && (
+            <button
+              onClick={onFetchLiveThreats}
+              disabled={isLoadingLive}
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-medium text-sm
+                transition-all duration-300 group
+                ${hasApiKey
+                  ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/20'
+                  : 'bg-gradient-to-r from-slate-500/20 to-slate-500/10 border border-slate-500/30 text-slate-400 hover:border-cyan-500/30 hover:text-cyan-400'
+                }
+                disabled:opacity-50`}
+            >
+              {isLoadingLive ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Globe className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              )}
+              {hasApiKey ? 'Fetch Live Threats' : 'Connect OTX'}
+            </button>
+          )}
+
+          {/* Settings Button */}
+          {onOpenSettings && (
+            <button
+              onClick={onOpenSettings}
+              className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400
+                hover:bg-slate-800 hover:text-slate-300 transition-all duration-300 group"
+            >
+              <Settings className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          )}
+
           {/* New Attack Button */}
           <button
             onClick={onTriggerAttack}

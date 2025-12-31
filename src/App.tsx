@@ -6,9 +6,11 @@ import ThreatList from './components/ThreatList';
 import AlertsPanel from './components/AlertsPanel';
 import StageDetails from './components/StageDetails';
 import SimulationControls from './components/SimulationControls';
+import ApiSettings from './components/ApiSettings';
 import { killChainStages } from './data/killChainStages';
 import { mockThreats, mockAlerts, mockStats } from './data/mockThreats';
 import { Threat, Alert, KillChainStage, DashboardStats } from './types';
+import { otxApi } from './services/otxApi';
 
 function App() {
   const [threats, setThreats] = useState<Threat[]>(mockThreats);
@@ -17,6 +19,8 @@ function App() {
   const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
   const [selectedStage, setSelectedStage] = useState<KillChainStage | null>(null);
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  const [isApiSettingsOpen, setIsApiSettingsOpen] = useState(false);
+  const [isLoadingOTX, setIsLoadingOTX] = useState(false);
 
   const unacknowledgedCount = alerts.filter(a => !a.acknowledged).length;
 
@@ -193,6 +197,75 @@ function App() {
     setIsSimulationRunning(false);
   };
 
+  // Fetch live threats from AlienVault OTX
+  const fetchOTXThreats = useCallback(async () => {
+    if (!otxApi.getApiKey()) {
+      setIsApiSettingsOpen(true);
+      return;
+    }
+
+    setIsLoadingOTX(true);
+    try {
+      const pulses = await otxApi.getSubscribedPulses(10);
+      const otxThreats: Threat[] = pulses.map(pulse => {
+        const mapped = otxApi.mapPulseToThreat(pulse);
+        const detectedStages = mapped.stages.filter(s => s.detected);
+        const currentStage = detectedStages.length > 0 ?
+          killChainStages.findIndex(s => s.id === detectedStages[detectedStages.length - 1].stageId) : 0;
+
+        return {
+          id: mapped.id,
+          name: mapped.name,
+          type: mapped.type,
+          severity: mapped.severity,
+          currentStage: Math.max(0, currentStage),
+          stages: killChainStages.map(stage => {
+            const mappedStage = mapped.stages.find(s => s.stageId === stage.id);
+            return {
+              stageId: stage.id,
+              detected: mappedStage?.detected || false,
+              timestamp: mappedStage?.detected ? new Date() : undefined,
+              evidence: mappedStage?.evidence,
+              blocked: false
+            };
+          }),
+          firstDetected: new Date(),
+          lastActivity: new Date(),
+          source: mapped.source,
+          target: 'Multiple Targets',
+          indicators: mapped.indicators,
+          status: 'active' as const
+        };
+      });
+
+      setThreats(prev => [...otxThreats, ...prev.filter(t => !t.id.startsWith('OTX-'))]);
+
+      // Create alerts for new OTX threats
+      const newAlerts: Alert[] = otxThreats.slice(0, 5).map(threat => ({
+        id: `ALR-OTX-${threat.id}`,
+        threatId: threat.id,
+        stageId: 'reconnaissance',
+        message: `Live threat from OTX: ${threat.name}`,
+        severity: threat.severity,
+        timestamp: new Date(),
+        acknowledged: false
+      }));
+
+      setAlerts(prev => [...newAlerts, ...prev.filter(a => !a.id.includes('OTX'))]);
+
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        activeThreats: prev.activeThreats + otxThreats.length,
+        alertsToday: prev.alertsToday + newAlerts.length
+      }));
+    } catch (error) {
+      console.error('Failed to fetch OTX threats:', error);
+    } finally {
+      setIsLoadingOTX(false);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-primary relative overflow-hidden">
       {/* Animated mesh gradient background */}
@@ -213,6 +286,10 @@ function App() {
             onToggle={() => setIsSimulationRunning(!isSimulationRunning)}
             onReset={handleReset}
             onTriggerAttack={generateNewThreat}
+            onFetchLiveThreats={fetchOTXThreats}
+            onOpenSettings={() => setIsApiSettingsOpen(true)}
+            isLoadingLive={isLoadingOTX}
+            hasApiKey={!!otxApi.getApiKey()}
           />
 
           <KillChainVisualization
@@ -238,6 +315,12 @@ function App() {
           stage={selectedStage}
           threat={selectedThreat}
           onClose={() => setSelectedStage(null)}
+        />
+
+        <ApiSettings
+          isOpen={isApiSettingsOpen}
+          onClose={() => setIsApiSettingsOpen(false)}
+          onApiKeySet={fetchOTXThreats}
         />
       </div>
     </div>
