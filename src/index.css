@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #060912;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e17;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2332;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3342;
+}
+
+/* Glowing effects */
+.glow-blue {
+  box-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff40;
+}
+
+.glow-red {
+  box-shadow: 0 0 10px #ff3366, 0 0 20px #ff336640;
+}
+
+.glow-green {
+  box-shadow: 0 0 10px #00ff88, 0 0 20px #00ff8840;
+}
+
+.glow-orange {
+  box-shadow: 0 0 10px #ff9500, 0 0 20px #ff950040;
+}
+
+.glow-purple {
+  box-shadow: 0 0 10px #9d4edd, 0 0 20px #9d4edd40;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Animated scan line */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  opacity: 0.3;
+}
